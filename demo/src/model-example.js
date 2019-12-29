@@ -9,7 +9,7 @@ import type { EntityState } from '../../src/entity/reducer';
 
 const model: EntityState = [
   {
-    id: 'ja1lnjvx',
+    id: 'Gorilla',
     type: 'Task',
     width: 125,
     height: 75,
@@ -18,7 +18,7 @@ const model: EntityState = [
     name: 'Gorilla',
     linksTo: [
       {
-        target: 'ja1lnkqu',
+        target: 'Toucan',
         edited: false,
         label: 'Is friends with',
         points: [
@@ -37,8 +37,8 @@ const model: EntityState = [
         ],
       },
       {
-        target: 'ja1lnq90',
-        edited: true,
+        target: 'Zebra',
+        edited: false,
         label: 'Eats',
         points: [
           {
@@ -62,7 +62,7 @@ const model: EntityState = [
     ],
   },
   {
-    id: 'ja1lnkqu',
+    id: 'Toucan',
     type: 'Event',
     width: 50,
     height: 50,
@@ -71,7 +71,7 @@ const model: EntityState = [
     name: 'Toucan',
     linksTo: [
       {
-        target: 'ja1lnx2u',
+        target: 'Jiraffe',
         edited: false,
         points: [
           {
@@ -95,7 +95,7 @@ const model: EntityState = [
     ],
   },
   {
-    id: 'ja1lnq90',
+    id: 'Zebra',
     type: 'Task',
     width: 125,
     height: 75,
@@ -104,7 +104,7 @@ const model: EntityState = [
     name: 'Zebra',
   },
   {
-    id: 'ja1lnx2u',
+    id: 'Jiraffe',
     type: 'Task',
     width: 125,
     height: 75,

@@ -104,7 +104,7 @@ const Canvas = (props: CanvasProps) => (
         {props.entities
           .filter(entity => 'linksTo' in entity)
           // $FlowFixMe
-          .map(entity => <Links key={entity.id} links={entity.linksTo} />)}
+          .map(entity => <Links key={entity.id} links={entity.linksTo} from={entity.id}/>)}
         {/* https://github.com/facebook/flow/issues/1414 */}
         {props.isConnecting && <Links links={props.connectingLink} />}
         <ArrowMarker />
