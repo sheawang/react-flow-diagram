@@ -1,8 +1,7 @@
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _templateObject = _taggedTemplateLiteralLoose(["\n  fill: none;\n  stroke-width: .1em;\n  stroke: black;\n  stroke-linejoin: round;\n  marker-end: url(\"#arrow-end\");\n"], ["\n  fill: none;\n  stroke-width: .1em;\n  stroke: black;\n  stroke-linejoin: round;\n  marker-end: url(\"#arrow-end\");\n"]),
-    _templateObject2 = _taggedTemplateLiteralLoose(["\n  fill: none;\n  stroke-width: 1em;\n  stroke: transparent;\n  stroke-linejoin: round;\n"], ["\n  fill: none;\n  stroke-width: 1em;\n  stroke: transparent;\n  stroke-linejoin: round;\n"]),
-    _templateObject3 = _taggedTemplateLiteralLoose(["\n  display: block;\n"], ["\n  display: block;\n"]);
+    _templateObject2 = _taggedTemplateLiteralLoose(["\n  fill: none;\n  stroke-width: 1em;\n  stroke: transparent;\n  stroke-linejoin: round;\n"], ["\n  fill: none;\n  stroke-width: 1em;\n  stroke: transparent;\n  stroke-linejoin: round;\n"]);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -16,7 +15,7 @@ import React from "react";
 import style from "styled-components";
 
 import { setEntities } from "../entity/reducer";
-import { Input, Select, InputGroup } from "antd";
+import { Select, Button } from "antd";
 import { connect } from "react-redux";
 import calcLinkPoints from "./calcLinkPoints";
 import { State } from "../diagram/reducer";
@@ -28,28 +27,34 @@ import { State } from "../diagram/reducer";
 var Line = style.path(_templateObject);
 
 var InteractionLine = style.path(_templateObject2);
-var InputPosition = style.div(_templateObject3);
 var Option = Select.Option;
 
 var Options = ["1...1", "1...n", "n...n"];
 
 var SelectAfter = function SelectAfter(props) {
   return React.createElement(
-    Select,
-    {
-      placeholder: "\u8BF7\u9009\u62E9\u6A21\u578B\u5173\u7CFB",
-      defaultValue: props.value,
-      onChange: function onChange(value) {
-        return props.handleSelect(value);
-      }
-    },
-    Options.map(function (option) {
-      return React.createElement(
-        Option,
-        { key: option },
-        option
-      );
-    })
+    "div",
+    null,
+    React.createElement(
+      Select,
+      {
+        placeholder: "\u8BF7\u9009\u62E9\u6A21\u578B\u5173\u7CFB",
+        defaultValue: props.value ? props.value : '1..1',
+        onChange: function onChange(value) {
+          return props.handleSelect(value);
+        }
+      },
+      Options.map(function (option) {
+        return React.createElement(
+          Option,
+          { key: option },
+          option
+        );
+      })
+    ),
+    React.createElement(Button, { icon: "delete", onClick: function onClick() {
+        return props.handleDelete();
+      } })
   );
 };
 
@@ -65,9 +70,9 @@ var ArrowBody = function (_React$Component) {
       label: props.label,
       edited: props.edited
     };
-    _this.handleChange = _this.handleChange.bind(_this);
     _this.handleClick = _this.handleClick.bind(_this);
     _this.handleSelect = _this.handleSelect.bind(_this);
+    _this.handleDelete = _this.handleDelete.bind(_this);
     return _this;
   }
 
@@ -83,21 +88,6 @@ var ArrowBody = function (_React$Component) {
     }
   };
 
-  ArrowBody.prototype.handleChange = function handleChange(ev) {
-    switch (ev.key) {
-      case "Enter":
-        this.setState(_extends({}, this.state, { edited: false }));
-        this.props.handleSubmit({ id: this.props.id, label: this.state.label });
-        break;
-      // no default
-      default:
-        this.setState({
-          label: ev.currentTarget.value,
-          edited: this.state.edited
-        });
-    }
-  };
-
   ArrowBody.prototype.handleClick = function handleClick() {
     this.setState({
       edited: true
@@ -109,28 +99,36 @@ var ArrowBody = function (_React$Component) {
     this.props.handleSubmit({ id: this.props.id, label: select });
   };
 
+  ArrowBody.prototype.handleDelete = function handleDelete() {
+    this.props.handleDelete();
+  };
+
   ArrowBody.prototype.render = function render() {
     var _this2 = this;
 
     var _props = this.props,
         points = _props.points,
-        id = _props.id;
+        id = _props.id,
+        from = _props.from;
+
+    var pointsStr = pointsToString(points);
     var label = this.state.label;
 
+    var newId = "From" + from + "To" + id;
     var notEdited = React.createElement(
       "g",
       { ref: function ref(_ref) {
           return _this2.polyline = _ref;
         } },
-      React.createElement(Line, { d: points, id: "line" + id }),
-      React.createElement(InteractionLine, { d: points }),
+      React.createElement(Line, { d: pointsStr, id: "line" + newId }),
+      React.createElement(InteractionLine, { d: pointsStr }),
       label && React.createElement(
         "text",
         { dy: "-.25rem" },
         React.createElement(
           "textPath",
           {
-            xlinkHref: "#line" + id,
+            xlinkHref: "#line" + newId,
             startOffset: "33%",
             style: { fontSize: ".8rem" }
           },
@@ -138,24 +136,27 @@ var ArrowBody = function (_React$Component) {
         )
       )
     );
-    var start = points.split("L")[0].split("M")[1].split(",");
-    var end = points.split("L")[1].split(",");
+    var start = points[0];
+    var end = points[1];
     var editedMode = React.createElement(
       "g",
       null,
-      React.createElement(Line, { d: points, id: "line" + id }),
-      React.createElement(InteractionLine, { d: points }),
+      React.createElement(Line, { d: pointsStr, id: "line" + newId }),
+      React.createElement(InteractionLine, { d: pointsStr }),
       React.createElement(
         "foreignObject",
         {
           width: "100",
           height: "50",
-          x: (Number(start[0]) + Number(end[0])) / 2,
-          y: (Number(start[1]) + Number(end[1])) / 2
+          x: (Number(start.x) + Number(end.x)) / 2,
+          y: (Number(start.y) + Number(end.y)) / 2
         },
         React.createElement(SelectAfter, {
           value: label,
-          handleSelect: this.handleSelect
+          handleSelect: this.handleSelect,
+          handleDelete: function handleDelete() {
+            return _this2.handleDelete();
+          }
         })
       )
     );
@@ -198,16 +199,16 @@ var ArrowBodyContainer = function (_React$PureComponent) {
       var isExist = currentTarget.linksTo.find(function (lk) {
         return lk.target === link.id;
       });
-      if (isExist) {
+      if (currentTarget.linksTo && isExist) {
         currentTarget.linksTo.map(function (tg) {
           return tg.target === link.id ? _extends({}, tg, { label: link.label }) : tg;
         });
       } else {
-        currentTarget.linksTo.add({
+        currentTarget.linksTo = [].concat(currentTarget.linksTo, [{
           target: link.id,
           label: link.label,
           edited: false
-        });
+        }]);
       }
       _this3.props.setEntities(_this3.props.entities.map(function (entity) {
         return entity.id === currentTarget.id ? currentTarget : entity;
@@ -215,8 +216,25 @@ var ArrowBodyContainer = function (_React$PureComponent) {
     }, _temp), _possibleConstructorReturn(_this3, _ret);
   }
 
-  ArrowBodyContainer.prototype.render = function render() {
+  ArrowBodyContainer.prototype.handleDelete = function handleDelete(target) {
     var _this4 = this;
+
+    var currentTarget = this.props.entities.find(function (et) {
+      return et.id === _this4.props.from;
+    });
+    var linkIndex = currentTarget.linksTo.findIndex(function (lk) {
+      return lk.target === target;
+    });
+    if (linkIndex >= 0) {
+      currentTarget.linksTo.splice(linkIndex, 1);
+    }
+    this.props.setEntities(this.props.entities.map(function (entity) {
+      return entity.id === currentTarget.id ? currentTarget : entity;
+    }));
+  };
+
+  ArrowBodyContainer.prototype.render = function render() {
+    var _this5 = this;
 
     return React.createElement(
       "g",
@@ -225,11 +243,15 @@ var ArrowBodyContainer = function (_React$PureComponent) {
         return link.points && React.createElement(ArrowBody, {
           key: link.target,
           id: link.target,
+          from: _this5.props.from,
           label: link.label,
-          points: pointsToString(link.points),
+          points: link.points,
           edited: link.edited,
           handleSubmit: function handleSubmit(link) {
-            return _this4.handleSubmit(link);
+            return _this5.handleSubmit(link);
+          },
+          handleDelete: function handleDelete() {
+            return _this5.handleDelete(link.target);
           }
         });
       })
@@ -238,27 +260,6 @@ var ArrowBodyContainer = function (_React$PureComponent) {
 
   return ArrowBodyContainer;
 }(React.PureComponent);
-// const ArrowBodyContainer = (props: ArrowBodyContainerProps) => (
-//   <g>
-//     {props.links.map(
-//       link =>
-//         link.points && (
-//           <ArrowBody
-//             key={link.target}
-//             id={link.target}
-//             label={link.label}
-//             points={pointsToString(link.points)}
-//             edited={link.edited}
-//             onClick={() => {
-//               link.edited = !link.edited;
-//             }}
-//             handleSubmit={(link) => handleSubmit(props.entities,props.from, link)}
-//           />
-//         )
-//     )}
-//   </g>
-// );
-
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
