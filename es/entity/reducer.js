@@ -2,11 +2,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 import calcLinkPoints from "../links/calcLinkPoints";
 import positionAdjustedToGrid from "../canvas/positionAdjustedToGrid";
-// set model type
-
 
 export var EntityActionTypeOpen = "rd/entity/SET";
-export var EntityActionTypesModify = ["rd/entity/ADD", "rd/entity/LINK_TO", "rd/entity/ADD_LINKED", "rd/entity/REMOVE", "rd/entity/MOVE", "rd/entity/SET_NAME", "rd/entity/SET_CUSTOM"];
+export var EntityActionTypesModify = ["rd/entity/ADD", "rd/entity/LINK_TO", "rd/entity/ADD_LINKED", "rd/entity/REMOVE", "rd/entity/MOVE", "rd/entity/SET_NAME", "rd/entity/SET_MODEL", "rd/entity/SET_CUSTOM", "rd/entity/GET"];
 
 var entityReducer = function entityReducer() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
