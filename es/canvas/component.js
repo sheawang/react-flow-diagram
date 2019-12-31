@@ -17,7 +17,7 @@ import style from 'styled-components';
 import { connect } from 'react-redux';
 import { configViewport, trackMovement, anchorCanvas, zoom } from './reducer';
 import { undo, redo } from '../history/reducer';
-import { setName } from '../entity/reducer';
+import { setName, setModel } from '../entity/reducer';
 import { icons } from '../icon/component';
 import EntityHOC from '../entity/component';
 import Panel from '../panel/component';
@@ -116,7 +116,7 @@ var CanvasContainer = function (_React$PureComponent) {
     }, _this.wrappedCustomEntities = Object.assign.apply(Object, [{}].concat(Object.keys(_this.props.customEntities).map(function (type) {
       var _ref;
 
-      return _ref = {}, _ref[type] = EntityHOC(connect(null, { setName: setName })(_this.props.customEntities[type].component)), _ref;
+      return _ref = {}, _ref[type] = EntityHOC(connect(null, { setName: setName, setModel: setModel })(_this.props.customEntities[type].component)), _ref;
     }))), _this.handleKey = function (ev) {
       if (ev.getModifierState('Meta') || ev.getModifierState('Control')) {
         switch (ev.key) {

@@ -1,10 +1,12 @@
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-import calcLinkPoints from '../links/calcLinkPoints';
-import positionAdjustedToGrid from '../canvas/positionAdjustedToGrid';
+import calcLinkPoints from "../links/calcLinkPoints";
+import positionAdjustedToGrid from "../canvas/positionAdjustedToGrid";
+// set model type
 
-export var EntityActionTypeOpen = 'rd/entity/SET';
-export var EntityActionTypesModify = ['rd/entity/ADD', 'rd/entity/LINK_TO', 'rd/entity/ADD_LINKED', 'rd/entity/REMOVE', 'rd/entity/MOVE', 'rd/entity/SET_NAME', 'rd/entity/SET_CUSTOM'];
+
+export var EntityActionTypeOpen = "rd/entity/SET";
+export var EntityActionTypesModify = ["rd/entity/ADD", "rd/entity/LINK_TO", "rd/entity/ADD_LINKED", "rd/entity/REMOVE", "rd/entity/MOVE", "rd/entity/SET_NAME", "rd/entity/SET_CUSTOM"];
 
 var entityReducer = function entityReducer() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
@@ -13,10 +15,13 @@ var entityReducer = function entityReducer() {
   var canvas = arguments[3];
 
   switch (action.type) {
-    case 'rd/entity/SET':
+    case "rd/entity/SET":
       return action.payload;
 
-    case 'rd/config/SET':
+    case "rd/entity/GET":
+      return state;
+
+    case "rd/config/SET":
       {
         var configs = action.payload;
         return state.map(function (entity) {
@@ -28,7 +33,7 @@ var entityReducer = function entityReducer() {
         });
       }
 
-    case 'rd/entity/ADD':
+    case "rd/entity/ADD":
       return [].concat(state, [{
         id: action.payload.id,
         type: action.payload.type,
@@ -39,7 +44,7 @@ var entityReducer = function entityReducer() {
         name: action.payload.name
       }]);
 
-    case 'rd/entity/LINK_TO':
+    case "rd/entity/LINK_TO":
       {
         var payload = action.payload;
 
@@ -58,7 +63,7 @@ var entityReducer = function entityReducer() {
         });
       }
 
-    case 'rd/entity/ADD_LINKED':
+    case "rd/entity/ADD_LINKED":
       {
         var _action$payload = action.payload,
             _entity = _action$payload.entity,
@@ -79,7 +84,7 @@ var entityReducer = function entityReducer() {
         }]);
       }
 
-    case 'rd/entity/REMOVE':
+    case "rd/entity/REMOVE":
       return state.filter(function (entity) {
         return entity.id !== action.payload;
       }).map(function (entity) {
@@ -90,7 +95,7 @@ var entityReducer = function entityReducer() {
         }) : entity;
       });
 
-    case 'rd/canvas/TRACK':
+    case "rd/canvas/TRACK":
       {
         if (canvas.anchoredEntity.isAnchored) {
           var _id2 = canvas.anchoredEntity.id;
@@ -146,7 +151,7 @@ var entityReducer = function entityReducer() {
     // All this logic can be potentially removed, research if I'll still use
     // the MOVE action... or perhaps put all this into its own function and
     // reuse :shrug:
-    case 'rd/entity/MOVE':
+    case "rd/entity/MOVE":
       {
         var _action$payload2 = action.payload,
             _id3 = _action$payload2.id,
@@ -191,7 +196,7 @@ var entityReducer = function entityReducer() {
         });
       }
 
-    case 'rd/entity/SET_NAME':
+    case "rd/entity/SET_NAME":
       {
         var _action$payload3 = action.payload,
             _id4 = _action$payload3.id,
@@ -204,7 +209,16 @@ var entityReducer = function entityReducer() {
         });
       }
 
-    case 'rd/entity/LINK_POINTS':
+    case "rd/entity/SET_MODEL":
+      {
+        var _id5 = action.payload.id;
+
+        return state.map(function (entity) {
+          return entity.id === _id5 ? _extends({}, action.payload) : entity;
+        });
+      }
+
+    case "rd/entity/LINK_POINTS":
       {
         var _action$payload4 = action.payload,
             from = _action$payload4.from,
@@ -222,14 +236,14 @@ var entityReducer = function entityReducer() {
         });
       }
 
-    case 'rd/entity/SET_CUSTOM':
+    case "rd/entity/SET_CUSTOM":
       {
         var _action$payload5 = action.payload,
-            _id5 = _action$payload5.id,
+            _id6 = _action$payload5.id,
             _custom = _action$payload5.custom;
 
         return state.map(function (entity) {
-          return entity.id === _id5 ? _extends({}, entity, {
+          return entity.id === _id6 ? _extends({}, entity, {
             custom: _custom
           }) : entity;
         });
@@ -250,7 +264,7 @@ export var metaEntityReducer = function metaEntityReducer() {
   var canvas = arguments[3];
 
   switch (action.type) {
-    case 'rd/entity/SET':
+    case "rd/entity/SET":
       return action.payload.map(function (ent) {
         return {
           id: ent.id,
@@ -263,7 +277,7 @@ export var metaEntityReducer = function metaEntityReducer() {
         };
       });
 
-    case 'rd/entity/ADD':
+    case "rd/entity/ADD":
       return [].concat(state, [{
         id: action.payload.id,
         isAnchored: action.payload.isAnchored,
@@ -273,7 +287,7 @@ export var metaEntityReducer = function metaEntityReducer() {
           y: action.payload.height / 2
         }
       }]);
-    case 'rd/entity/ADD_LINKED':
+    case "rd/entity/ADD_LINKED":
       return [].concat(state.map(unselectMetaEntity), [{
         id: action.payload.entity.id,
         isAnchored: action.payload.entity.isAnchored,
@@ -284,44 +298,44 @@ export var metaEntityReducer = function metaEntityReducer() {
         }
       }]);
 
-    case 'rd/metaentity/SELECT':
+    case "rd/metaentity/SELECT":
       {
         var _action$payload6 = action.payload,
-            _id6 = _action$payload6.id,
+            _id7 = _action$payload6.id,
             _isSelected = _action$payload6.isSelected;
 
         return state.map(function (metaEntity) {
-          return metaEntity.id === _id6 ? _extends({}, metaEntity, { isSelected: _isSelected }) : _extends({}, metaEntity, { isSelected: false });
+          return metaEntity.id === _id7 ? _extends({}, metaEntity, { isSelected: _isSelected }) : _extends({}, metaEntity, { isSelected: false });
         });
       }
 
-    case 'rd/canvas/ANCHOR_ENTITY':
+    case "rd/canvas/ANCHOR_ENTITY":
       {
-        var _id7 = action.payload.id;
+        var _id8 = action.payload.id;
 
         return state.map(function (metaEntity) {
-          return metaEntity.id === _id7 ? _extends({}, metaEntity, {
+          return metaEntity.id === _id8 ? _extends({}, metaEntity, {
             isAnchored: true,
             anchor: {
               x: canvas.cursor.x - (entity.find(function (e) {
-                return e.id === _id7;
+                return e.id === _id8;
               }) || { x: 0 }).x,
               y: canvas.cursor.y - (entity.find(function (e) {
-                return e.id === _id7;
+                return e.id === _id8;
               }) || { y: 0 }).y
             }
           }) : _extends({}, metaEntity, { isAnchored: false });
         });
       }
 
-    case 'rd/entity/REMOVE':
+    case "rd/entity/REMOVE":
       return state.filter(function (ent) {
         return ent.id !== action.payload;
       });
 
-    case 'rd/entity/CONNECT':
-    case 'rd/metaentity/UNSELECTALL':
-    case 'rd/canvas/ANCHOR_CANVAS':
+    case "rd/entity/CONNECT":
+    case "rd/metaentity/UNSELECTALL":
+    case "rd/canvas/ANCHOR_CANVAS":
       return state.map(unselectMetaEntity);
 
     default:
@@ -331,50 +345,58 @@ export var metaEntityReducer = function metaEntityReducer() {
 
 export var setEntities = function setEntities(payload) {
   return {
-    type: 'rd/entity/SET',
+    type: "rd/entity/SET",
     payload: payload
   };
 };
 
 export var addEntity = function addEntity(payload) {
-  return { type: 'rd/entity/ADD', payload: payload };
+  return { type: "rd/entity/ADD", payload: payload };
 };
 
 export var linkTo = function linkTo(payload) {
   return {
-    type: 'rd/entity/LINK_TO',
+    type: "rd/entity/LINK_TO",
     payload: payload
   };
 };
 
 export var addLinkedEntity = function addLinkedEntity(payload) {
-  return { type: 'rd/entity/ADD_LINKED', payload: payload };
+  return { type: "rd/entity/ADD_LINKED", payload: payload };
 };
 
 export var removeEntity = function removeEntity(payload) {
   return {
-    type: 'rd/entity/REMOVE',
+    type: "rd/entity/REMOVE",
     payload: payload
   };
 };
 
 export var move = function move(payload) {
   return {
-    type: 'rd/entity/MOVE',
+    type: "rd/entity/MOVE",
     payload: payload
   };
 };
 
 export var setName = function setName(payload) {
   return {
-    type: 'rd/entity/SET_NAME',
+    type: "rd/entity/SET_NAME",
+    payload: payload
+  };
+};
+
+// set whole model
+export var setModel = function setModel(payload) {
+  return {
+    type: "rd/entity/SET_MODEL",
     payload: payload
   };
 };
 
 export var setCustom = function setCustom(payload) {
   return {
-    type: 'rd/entity/SET_CUSTOM',
+    type: "rd/entity/SET_CUSTOM",
     payload: payload
   };
 };
@@ -382,14 +404,20 @@ export var setCustom = function setCustom(payload) {
 export var selectEntity = function selectEntity(id) {
   var isSelected = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
   return {
-    type: 'rd/metaentity/SELECT',
+    type: "rd/metaentity/SELECT",
     payload: { id: id, isSelected: isSelected }
   };
 };
 
 export var unselectAll = function unselectAll() {
   return {
-    type: 'rd/metaentity/UNSELECTALL',
+    type: "rd/metaentity/UNSELECTALL",
+    payload: null
+  };
+};
+export var getEntity = function getEntity() {
+  return {
+    type: "rd/entity/GET",
     payload: null
   };
 };
