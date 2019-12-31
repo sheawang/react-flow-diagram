@@ -50,8 +50,6 @@ export type AddLinkedEntityPayload = {
 };
 export type MovePayload = { x: number, y: number, id: string };
 export type SetNamePayload = { id: EntityId, name: string };
-// set model type
-export type SetMoldelPayload = EntityModel;
 export type SetCustomPayload = { id: EntityId, custom: Object };
 export type EntityAction =
   | ActionShape<"rd/entity/SET", EntityState>
@@ -61,7 +59,7 @@ export type EntityAction =
   | ActionShape<"rd/entity/REMOVE", EntityId>
   | ActionShape<"rd/entity/MOVE", MovePayload>
   | ActionShape<"rd/entity/SET_NAME", SetNamePayload>
-  | ActionShape<"rd/entity/SET_MODEL", SetMoldelPayload>
+  | ActionShape<"rd/entity/SET_MODEL", EntityModel>
   | ActionShape<"rd/entity/SET_CUSTOM", SetCustomPayload>
   | ActionShape<"rd/entity/GET", EntityState>;
 
@@ -73,7 +71,9 @@ export const EntityActionTypesModify = [
   "rd/entity/REMOVE",
   "rd/entity/MOVE",
   "rd/entity/SET_NAME",
-  "rd/entity/SET_CUSTOM"
+  "rd/entity/SET_MODEL",
+  "rd/entity/SET_CUSTOM",
+  "rd/entity/GET"
 ];
 
 export type MetaEntityAction =
@@ -479,7 +479,7 @@ export const setName = (payload: SetNamePayload): EntityAction => ({
 });
 
 // set whole model
-export const setModel = (payload: SetModelPayload): EntityAction => ({
+export const setModel = (payload: EntityModel): EntityAction => ({
   type: "rd/entity/SET_MODEL",
   payload
 });
