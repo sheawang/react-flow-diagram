@@ -5,7 +5,7 @@ import style from 'styled-components';
 import { connect } from 'react-redux';
 import { configViewport, trackMovement, anchorCanvas, zoom } from './reducer';
 import { undo, redo } from '../history/reducer';
-import { setName } from '../entity/reducer';
+import { setName,setModel } from '../entity/reducer';
 import { icons } from '../icon/component';
 import EntityHOC from '../entity/component';
 import Panel from '../panel/component';
@@ -180,7 +180,7 @@ class CanvasContainer extends React.PureComponent<
     {},
     ...Object.keys(this.props.customEntities).map(type => ({
       [type]: EntityHOC(
-        connect(null, { setName })(this.props.customEntities[type].component)
+        connect(null, { setName,setModel })(this.props.customEntities[type].component)
       ),
     }))
   );

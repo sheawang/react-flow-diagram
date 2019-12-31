@@ -1,10 +1,10 @@
 // @flow
 
-import calcLinkPoints from '../links/calcLinkPoints';
-import positionAdjustedToGrid from '../canvas/positionAdjustedToGrid';
+import calcLinkPoints from "../links/calcLinkPoints";
+import positionAdjustedToGrid from "../canvas/positionAdjustedToGrid";
 
-import type { ActionShape, Action } from '../diagram/reducer';
-import type { CanvasState, Coords } from '../canvas/reducer';
+import type { ActionShape, Action } from "../diagram/reducer";
+import type { CanvasState, Coords } from "../canvas/reducer";
 
 export type EntityId = string;
 
@@ -15,7 +15,7 @@ export type Link = {
   edited: boolean,
   points?: Array<Point>,
   label?: string,
-  color?: string,
+  color?: string
 };
 
 export type Links = Array<Link>;
@@ -30,7 +30,7 @@ export type EntityModel = {
   y: number,
   name: string,
   linksTo?: Links,
-  custom?: Object,
+  custom?: Object
 };
 
 export type EntityState = Array<EntityModel>;
@@ -39,42 +39,46 @@ export type MetaEntityModel = {
   id: EntityId,
   isAnchored: boolean,
   isSelected: boolean,
-  anchor: Coords,
+  anchor: Coords
 };
 
 export type MetaEntityState = Array<MetaEntityModel>;
 
 export type AddLinkedEntityPayload = {
   entity: EntityModel & MetaEntityModel,
-  id: EntityId,
+  id: EntityId
 };
 export type MovePayload = { x: number, y: number, id: string };
 export type SetNamePayload = { id: EntityId, name: string };
+// set model type
+export type SetMoldelPayload = EntityModel;
 export type SetCustomPayload = { id: EntityId, custom: Object };
 export type EntityAction =
-  | ActionShape<'rd/entity/SET', EntityState>
-  | ActionShape<'rd/entity/ADD', EntityModel & MetaEntityModel>
-  | ActionShape<'rd/entity/LINK_TO', EntityId>
-  | ActionShape<'rd/entity/ADD_LINKED', AddLinkedEntityPayload>
-  | ActionShape<'rd/entity/REMOVE', EntityId>
-  | ActionShape<'rd/entity/MOVE', MovePayload>
-  | ActionShape<'rd/entity/SET_NAME', SetNamePayload>
-  | ActionShape<'rd/entity/SET_CUSTOM', SetCustomPayload>;
+  | ActionShape<"rd/entity/SET", EntityState>
+  | ActionShape<"rd/entity/ADD", EntityModel & MetaEntityModel>
+  | ActionShape<"rd/entity/LINK_TO", EntityId>
+  | ActionShape<"rd/entity/ADD_LINKED", AddLinkedEntityPayload>
+  | ActionShape<"rd/entity/REMOVE", EntityId>
+  | ActionShape<"rd/entity/MOVE", MovePayload>
+  | ActionShape<"rd/entity/SET_NAME", SetNamePayload>
+  | ActionShape<"rd/entity/SET_MODEL", SetMoldelPayload>
+  | ActionShape<"rd/entity/SET_CUSTOM", SetCustomPayload>
+  | ActionShape<"rd/entity/GET", EntityState>;
 
-export const EntityActionTypeOpen = 'rd/entity/SET';
+export const EntityActionTypeOpen = "rd/entity/SET";
 export const EntityActionTypesModify = [
-  'rd/entity/ADD',
-  'rd/entity/LINK_TO',
-  'rd/entity/ADD_LINKED',
-  'rd/entity/REMOVE',
-  'rd/entity/MOVE',
-  'rd/entity/SET_NAME',
-  'rd/entity/SET_CUSTOM',
+  "rd/entity/ADD",
+  "rd/entity/LINK_TO",
+  "rd/entity/ADD_LINKED",
+  "rd/entity/REMOVE",
+  "rd/entity/MOVE",
+  "rd/entity/SET_NAME",
+  "rd/entity/SET_CUSTOM"
 ];
 
 export type MetaEntityAction =
-  | ActionShape<'rd/metaentity/SELECT', { id: EntityId, isSelected: boolean }>
-  | ActionShape<'rd/metaentity/UNSELECTALL', null>;
+  | ActionShape<"rd/metaentity/SELECT", { id: EntityId, isSelected: boolean }>
+  | ActionShape<"rd/metaentity/UNSELECTALL", null>;
 
 const entityReducer = (
   state: EntityState = [],
@@ -83,10 +87,13 @@ const entityReducer = (
   canvas: CanvasState
 ): EntityState => {
   switch (action.type) {
-    case 'rd/entity/SET':
+    case "rd/entity/SET":
       return action.payload;
 
-    case 'rd/config/SET': {
+    case "rd/entity/GET":
+      return state;
+
+    case "rd/config/SET": {
       const configs = action.payload;
       return state.map(entity => {
         const relevantConfig = configs.entityTypes[entity.type];
@@ -94,13 +101,13 @@ const entityReducer = (
           ? {
               ...entity,
               width: relevantConfig.width,
-              height: relevantConfig.height,
+              height: relevantConfig.height
             }
           : entity;
       });
     }
 
-    case 'rd/entity/ADD':
+    case "rd/entity/ADD":
       return [
         ...state,
         {
@@ -110,52 +117,50 @@ const entityReducer = (
           height: action.payload.height,
           x: action.payload.x,
           y: action.payload.y,
-          name: action.payload.name,
-        },
+          name: action.payload.name
+        }
       ];
 
-    case 'rd/entity/LINK_TO': {
+    case "rd/entity/LINK_TO": {
       const { payload } = action;
-      return state.map(
-        entity =>
-          entity.id === canvas.connecting.from
-            ? {
-                ...entity,
-                linksTo: [
-                  ...(entity.linksTo ? entity.linksTo : []),
-                  ...(entity.linksTo &&
-                  entity.linksTo.some(link => link.target === payload)
-                    ? []
-                    : [
-                        {
-                          target: payload,
-                          edited: false,
-                          points: calcLinkPoints(
-                            entity,
-                            state.find(ent => ent.id === payload)
-                          ),
-                        },
-                      ]),
-                ],
-              }
-            : entity
+      return state.map(entity =>
+        entity.id === canvas.connecting.from
+          ? {
+              ...entity,
+              linksTo: [
+                ...(entity.linksTo ? entity.linksTo : []),
+                ...(entity.linksTo &&
+                entity.linksTo.some(link => link.target === payload)
+                  ? []
+                  : [
+                      {
+                        target: payload,
+                        edited: false,
+                        points: calcLinkPoints(
+                          entity,
+                          state.find(ent => ent.id === payload)
+                        )
+                      }
+                    ])
+              ]
+            }
+          : entity
       );
     }
 
-    case 'rd/entity/ADD_LINKED': {
+    case "rd/entity/ADD_LINKED": {
       const { entity, id } = action.payload;
       return [
-        ...state.map(
-          existingEntity =>
-            existingEntity.id === id
-              ? {
-                  ...existingEntity,
-                  linksTo: [
-                    ...(existingEntity.linksTo ? existingEntity.linksTo : []),
-                    { target: entity.id, edited: false },
-                  ],
-                }
-              : existingEntity
+        ...state.map(existingEntity =>
+          existingEntity.id === id
+            ? {
+                ...existingEntity,
+                linksTo: [
+                  ...(existingEntity.linksTo ? existingEntity.linksTo : []),
+                  { target: entity.id, edited: false }
+                ]
+              }
+            : existingEntity
         ),
         {
           id: entity.id,
@@ -164,29 +169,30 @@ const entityReducer = (
           height: entity.height,
           x: entity.x,
           y: entity.y,
-          name: entity.name,
-        },
+          name: entity.name
+        }
       ];
     }
 
-    case 'rd/entity/REMOVE':
-      return state.filter(entity => entity.id !== action.payload).map(
-        entity =>
+    case "rd/entity/REMOVE":
+      return state
+        .filter(entity => entity.id !== action.payload)
+        .map(entity =>
           entity.linksTo
             ? {
                 ...entity,
                 linksTo: entity.linksTo.filter(
                   link => link.target !== action.payload
-                ),
+                )
               }
             : entity
-      );
+        );
 
-    case 'rd/canvas/TRACK': {
+    case "rd/canvas/TRACK": {
       if (canvas.anchoredEntity.isAnchored) {
         const { id } = canvas.anchoredEntity;
         const mEntity = metaEntity.find(e => e.id === id) || {
-          anchor: { x: 0, y: 0 },
+          anchor: { x: 0, y: 0 }
         };
         const x = canvas.cursor.x - mEntity.anchor.x;
         const y = canvas.cursor.y - mEntity.anchor.y;
@@ -203,14 +209,14 @@ const entityReducer = (
                 points: calcLinkPoints(
                   entity,
                   state.find(ent => ent.id === link.target)
-                ),
-              })),
+                )
+              }))
             };
           } else if (entity.id === id) {
             return {
               ...entity,
               x: gridX,
-              y: gridY,
+              y: gridY
             };
           } else if (
             entity.linksTo &&
@@ -218,18 +224,17 @@ const entityReducer = (
           ) {
             return {
               ...entity,
-              linksTo: entity.linksTo.map(
-                link =>
-                  link.target === id
-                    ? {
-                        ...link,
-                        points: calcLinkPoints(
-                          entity,
-                          state.find(ent => ent.id === id)
-                        ),
-                      }
-                    : link
-              ),
+              linksTo: entity.linksTo.map(link =>
+                link.target === id
+                  ? {
+                      ...link,
+                      points: calcLinkPoints(
+                        entity,
+                        state.find(ent => ent.id === id)
+                      )
+                    }
+                  : link
+              )
             };
           } else {
             return entity;
@@ -243,7 +248,7 @@ const entityReducer = (
     // All this logic can be potentially removed, research if I'll still use
     // the MOVE action... or perhaps put all this into its own function and
     // reuse :shrug:
-    case 'rd/entity/MOVE': {
+    case "rd/entity/MOVE": {
       const { id, x, y } = action.payload;
       const gridX = positionAdjustedToGrid(x, canvas.gridSize);
       const gridY = positionAdjustedToGrid(y, canvas.gridSize);
@@ -258,14 +263,14 @@ const entityReducer = (
               points: calcLinkPoints(
                 entity,
                 state.find(ent => ent.id === link.target)
-              ),
-            })),
+              )
+            }))
           };
         } else if (entity.id === id) {
           return {
             ...entity,
             x: gridX,
-            y: gridY,
+            y: gridY
           };
         } else if (
           entity.linksTo &&
@@ -273,18 +278,17 @@ const entityReducer = (
         ) {
           return {
             ...entity,
-            linksTo: entity.linksTo.map(
-              link =>
-                link.target === id
-                  ? {
-                      ...link,
-                      points: calcLinkPoints(
-                        entity,
-                        state.find(ent => ent.id === id)
-                      ),
-                    }
-                  : link
-            ),
+            linksTo: entity.linksTo.map(link =>
+              link.target === id
+                ? {
+                    ...link,
+                    points: calcLinkPoints(
+                      entity,
+                      state.find(ent => ent.id === id)
+                    )
+                  }
+                : link
+            )
           };
         } else {
           return entity;
@@ -292,52 +296,59 @@ const entityReducer = (
       });
     }
 
-    case 'rd/entity/SET_NAME': {
+    case "rd/entity/SET_NAME": {
       const { id, name } = action.payload;
-      return state.map(
-        entity =>
-          entity.id === id
-            ? {
-                ...entity,
-                name,
-              }
-            : entity
+      return state.map(entity =>
+        entity.id === id
+          ? {
+              ...entity,
+              name
+            }
+          : entity
       );
     }
 
-    case 'rd/entity/LINK_POINTS': {
+    case "rd/entity/SET_MODEL": {
+      const { id } = action.payload;
+      return state.map(entity =>
+        entity.id === id
+          ? {
+              ...action.payload
+            }
+          : entity
+      );
+    }
+
+    case "rd/entity/LINK_POINTS": {
       const { from, to, points } = action.payload;
-      return state.map(
-        entity =>
-          entity.id === from
-            ? {
-                ...entity,
-                linksTo: entity.linksTo
-                  ? entity.linksTo.map(
-                      link =>
-                        link.target === to
-                          ? {
-                              ...link,
-                              points,
-                            }
-                          : link
-                    )
-                  : [{ target: to, points }],
-              }
-            : entity
+      return state.map(entity =>
+        entity.id === from
+          ? {
+              ...entity,
+              linksTo: entity.linksTo
+                ? entity.linksTo.map(link =>
+                    link.target === to
+                      ? {
+                          ...link,
+                          points
+                        }
+                      : link
+                  )
+                : [{ target: to, points }]
+            }
+          : entity
       );
     }
 
-    case 'rd/entity/SET_CUSTOM': {
+    case "rd/entity/SET_CUSTOM": {
       const { id, custom } = action.payload;
-      return state.map(
-        entity =>
-          entity.id === id
-            ? {
-                ...entity,
-                custom,
-              }
-            : entity
+      return state.map(entity =>
+        entity.id === id
+          ? {
+              ...entity,
+              custom
+            }
+          : entity
       );
     }
     default:
@@ -354,18 +365,18 @@ export const metaEntityReducer = (
   canvas: CanvasState
 ): MetaEntityState => {
   switch (action.type) {
-    case 'rd/entity/SET':
+    case "rd/entity/SET":
       return action.payload.map(ent => ({
         id: ent.id,
         isAnchored: false,
         isSelected: false,
         anchor: {
           x: ent.width / 2,
-          y: ent.height / 2,
-        },
+          y: ent.height / 2
+        }
       }));
 
-    case 'rd/entity/ADD':
+    case "rd/entity/ADD":
       return [
         ...state,
         {
@@ -374,11 +385,11 @@ export const metaEntityReducer = (
           isSelected: action.payload.isSelected,
           anchor: {
             x: action.payload.width / 2,
-            y: action.payload.height / 2,
-          },
-        },
+            y: action.payload.height / 2
+          }
+        }
       ];
-    case 'rd/entity/ADD_LINKED':
+    case "rd/entity/ADD_LINKED":
       return [
         ...state.map(unselectMetaEntity),
         {
@@ -387,48 +398,46 @@ export const metaEntityReducer = (
           isSelected: action.payload.entity.isSelected,
           anchor: {
             x: action.payload.entity.width / 2,
-            y: action.payload.entity.height / 2,
-          },
-        },
+            y: action.payload.entity.height / 2
+          }
+        }
       ];
 
-    case 'rd/metaentity/SELECT': {
+    case "rd/metaentity/SELECT": {
       const { id, isSelected } = action.payload;
-      return state.map(
-        metaEntity =>
-          metaEntity.id === id
-            ? { ...metaEntity, isSelected }
-            : { ...metaEntity, isSelected: false }
+      return state.map(metaEntity =>
+        metaEntity.id === id
+          ? { ...metaEntity, isSelected }
+          : { ...metaEntity, isSelected: false }
       );
     }
 
-    case 'rd/canvas/ANCHOR_ENTITY': {
+    case "rd/canvas/ANCHOR_ENTITY": {
       const { id } = action.payload;
-      return state.map(
-        metaEntity =>
-          metaEntity.id === id
-            ? {
-                ...metaEntity,
-                isAnchored: true,
-                anchor: {
-                  x:
-                    canvas.cursor.x -
-                    (entity.find(e => e.id === id) || { x: 0 }).x,
-                  y:
-                    canvas.cursor.y -
-                    (entity.find(e => e.id === id) || { y: 0 }).y,
-                },
+      return state.map(metaEntity =>
+        metaEntity.id === id
+          ? {
+              ...metaEntity,
+              isAnchored: true,
+              anchor: {
+                x:
+                  canvas.cursor.x -
+                  (entity.find(e => e.id === id) || { x: 0 }).x,
+                y:
+                  canvas.cursor.y -
+                  (entity.find(e => e.id === id) || { y: 0 }).y
               }
-            : { ...metaEntity, isAnchored: false }
+            }
+          : { ...metaEntity, isAnchored: false }
       );
     }
 
-    case 'rd/entity/REMOVE':
+    case "rd/entity/REMOVE":
       return state.filter(ent => ent.id !== action.payload);
 
-    case 'rd/entity/CONNECT':
-    case 'rd/metaentity/UNSELECTALL':
-    case 'rd/canvas/ANCHOR_CANVAS':
+    case "rd/entity/CONNECT":
+    case "rd/metaentity/UNSELECTALL":
+    case "rd/canvas/ANCHOR_CANVAS":
       return state.map(unselectMetaEntity);
 
     default:
@@ -437,54 +446,64 @@ export const metaEntityReducer = (
 };
 
 export const setEntities = (payload: EntityState): EntityAction => ({
-  type: 'rd/entity/SET',
-  payload,
+  type: "rd/entity/SET",
+  payload
 });
 
 export const addEntity = (
   payload: EntityModel & MetaEntityModel
-): EntityAction => ({ type: 'rd/entity/ADD', payload });
+): EntityAction => ({ type: "rd/entity/ADD", payload });
 
 export const linkTo = (payload: EntityId): EntityAction => ({
-  type: 'rd/entity/LINK_TO',
-  payload,
+  type: "rd/entity/LINK_TO",
+  payload
 });
 
 export const addLinkedEntity = (
   payload: AddLinkedEntityPayload
-): EntityAction => ({ type: 'rd/entity/ADD_LINKED', payload });
+): EntityAction => ({ type: "rd/entity/ADD_LINKED", payload });
 
 export const removeEntity = (payload: EntityId): EntityAction => ({
-  type: 'rd/entity/REMOVE',
-  payload,
+  type: "rd/entity/REMOVE",
+  payload
 });
 
 export const move = (payload: MovePayload): EntityAction => ({
-  type: 'rd/entity/MOVE',
-  payload,
+  type: "rd/entity/MOVE",
+  payload
 });
 
 export const setName = (payload: SetNamePayload): EntityAction => ({
-  type: 'rd/entity/SET_NAME',
-  payload,
+  type: "rd/entity/SET_NAME",
+  payload
+});
+
+// set whole model
+export const setModel = (payload: SetModelPayload): EntityAction => ({
+  type: "rd/entity/SET_MODEL",
+  payload
 });
 
 export const setCustom = (payload: SetCustomPayload): EntityAction => ({
-  type: 'rd/entity/SET_CUSTOM',
-  payload,
+  type: "rd/entity/SET_CUSTOM",
+  payload
 });
 
 export const selectEntity = (
   id: EntityId,
   isSelected?: boolean = true
 ): MetaEntityAction => ({
-  type: 'rd/metaentity/SELECT',
-  payload: { id, isSelected },
+  type: "rd/metaentity/SELECT",
+  payload: { id, isSelected }
 });
 
 export const unselectAll = (): MetaEntityAction => ({
-  type: 'rd/metaentity/UNSELECTALL',
-  payload: null,
+  type: "rd/metaentity/UNSELECTALL",
+  payload: null
+});
+export const getEntity = (): EntityAction => ({
+  type: "rd/entity/GET",
+  payload: null
 });
 
 export default entityReducer;
