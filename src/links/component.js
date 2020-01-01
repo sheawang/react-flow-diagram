@@ -15,7 +15,7 @@ import { Select, Button } from "antd";
 import { connect } from "react-redux";
 import calcLinkPoints from "./calcLinkPoints";
 import { State } from "../diagram/reducer";
-
+import { store as diagramStore } from "../diagram/component";
 /*
  * Presentational
  * ==================================== */
@@ -46,7 +46,7 @@ const SelectAfter = (props: SelectProps) => {
     <div>
       <Select
         placeholder="请选择模型关系"
-        defaultValue={props.value ? props.value : '1..1'}
+        defaultValue={props.value ? props.value : "1..1"}
         onChange={value => props.handleSelect(value)}
       >
         {Options.map(option => (
@@ -101,10 +101,10 @@ class ArrowBody extends React.Component<ArrowBodyProps> {
     this.props.handleDelete();
   }
   render() {
-    const { points, id,from } = this.props;
+    const { points, id, from } = this.props;
     const pointsStr = pointsToString(points);
     const { label } = this.state;
-    const newId = `From${from}To${id}`
+    const newId = `From${from}To${id}`;
     const notEdited = (
       <g ref={ref => (this.polyline = ref)}>
         <Line d={pointsStr} id={`line${newId}`} />
@@ -173,19 +173,26 @@ class ArrowBodyContainer extends React.PureComponent<ArrowBodyContainerProps> {
     );
     const isExist = currentTarget.linksTo.find(lk => lk.target === link.id);
     if (currentTarget.linksTo && isExist) {
-      currentTarget.linksTo.map(tg =>
+      currentTarget.linksTo = currentTarget.linksTo.map(tg =>
         tg.target === link.id ? { ...tg, label: link.label } : tg
       );
     } else {
-      currentTarget.linksTo = [...currentTarget.linksTo, ...[{
-        target: link.id,
-        label: link.label,
-        edited: false
-      }]]
+      currentTarget.linksTo = [
+        ...currentTarget.linksTo,
+        ...[
+          {
+            target: link.id,
+            label: link.label,
+            edited: false
+          }
+        ]
+      ];
     }
-    this.props.setEntities(
-      this.props.entities.map(entity =>
-        entity.id === currentTarget.id ? currentTarget : entity
+    diagramStore.dispatch(
+      this.props.setEntities(
+        this.props.entities.map(entity =>
+          entity.id === currentTarget.id ? currentTarget : entity
+        )
       )
     );
   };
@@ -197,11 +204,13 @@ class ArrowBodyContainer extends React.PureComponent<ArrowBodyContainerProps> {
       lk => lk.target === target
     );
     if (linkIndex >= 0) {
-      currentTarget.linksTo.splice(linkIndex,1)
+      currentTarget.linksTo.splice(linkIndex, 1);
     }
-    this.props.setEntities(
-      this.props.entities.map(entity =>
-        entity.id === currentTarget.id ? currentTarget : entity
+    diagramStore.dispatch(
+      this.props.setEntities(
+        this.props.entities.map(entity =>
+          entity.id === currentTarget.id ? currentTarget : entity
+        )
       )
     );
   }
