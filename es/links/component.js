@@ -19,7 +19,7 @@ import { Select, Button } from "antd";
 import { connect } from "react-redux";
 import calcLinkPoints from "./calcLinkPoints";
 import { State } from "../diagram/reducer";
-
+import { store as diagramStore } from "../diagram/component";
 /*
  * Presentational
  * ==================================== */
@@ -39,7 +39,7 @@ var SelectAfter = function SelectAfter(props) {
       Select,
       {
         placeholder: "\u8BF7\u9009\u62E9\u6A21\u578B\u5173\u7CFB",
-        defaultValue: props.value ? props.value : '1..1',
+        defaultValue: props.value ? props.value : "1..1",
         onChange: function onChange(value) {
           return props.handleSelect(value);
         }
@@ -200,7 +200,7 @@ var ArrowBodyContainer = function (_React$PureComponent) {
         return lk.target === link.id;
       });
       if (currentTarget.linksTo && isExist) {
-        currentTarget.linksTo.map(function (tg) {
+        currentTarget.linksTo = currentTarget.linksTo.map(function (tg) {
           return tg.target === link.id ? _extends({}, tg, { label: link.label }) : tg;
         });
       } else {
@@ -210,9 +210,9 @@ var ArrowBodyContainer = function (_React$PureComponent) {
           edited: false
         }]);
       }
-      _this3.props.setEntities(_this3.props.entities.map(function (entity) {
+      diagramStore.dispatch(_this3.props.setEntities(_this3.props.entities.map(function (entity) {
         return entity.id === currentTarget.id ? currentTarget : entity;
-      }));
+      })));
     }, _temp), _possibleConstructorReturn(_this3, _ret);
   }
 
@@ -228,9 +228,9 @@ var ArrowBodyContainer = function (_React$PureComponent) {
     if (linkIndex >= 0) {
       currentTarget.linksTo.splice(linkIndex, 1);
     }
-    this.props.setEntities(this.props.entities.map(function (entity) {
+    diagramStore.dispatch(this.props.setEntities(this.props.entities.map(function (entity) {
       return entity.id === currentTarget.id ? currentTarget : entity;
-    }));
+    })));
   };
 
   ArrowBodyContainer.prototype.render = function render() {
