@@ -10,7 +10,7 @@ import type {
   EntityId,
   EntityModel
 } from "../entity/reducer";
-import { setEntities } from "../entity/reducer";
+import { setModel } from "../entity/reducer";
 import { Select, Button } from "antd";
 import { connect } from "react-redux";
 import calcLinkPoints from "./calcLinkPoints";
@@ -164,7 +164,7 @@ type ArrowBodyContainerProps = {
   from: string,
   links: Links,
   entities: EntityState,
-  setEntities: EntityState => EntityAction
+  setModel: any => EntityAction,
 };
 class ArrowBodyContainer extends React.PureComponent<ArrowBodyContainerProps> {
   handleSubmit = (link: any) => {
@@ -188,13 +188,7 @@ class ArrowBodyContainer extends React.PureComponent<ArrowBodyContainerProps> {
         ]
       ];
     }
-    diagramStore.dispatch(
-      this.props.setEntities(
-        this.props.entities.map(entity =>
-          entity.id === currentTarget.id ? currentTarget : entity
-        )
-      )
-    );
+    this.props.setModel(currentTarget)
   };
   handleDelete(target: string) {
     const currentTarget = this.props.entities.find(
@@ -206,13 +200,7 @@ class ArrowBodyContainer extends React.PureComponent<ArrowBodyContainerProps> {
     if (linkIndex >= 0) {
       currentTarget.linksTo.splice(linkIndex, 1);
     }
-    diagramStore.dispatch(
-      this.props.setEntities(
-        this.props.entities.map(entity =>
-          entity.id === currentTarget.id ? currentTarget : entity
-        )
-      )
-    );
+    this.props.setModel(currentTarget);
   }
   render() {
     return (
@@ -240,5 +228,5 @@ const mapStateToProps = (state: State) => ({
   entities: state.entity
 });
 export default connect(mapStateToProps, {
-  setEntities
+  setModel
 })(ArrowBodyContainer);
