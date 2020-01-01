@@ -14,7 +14,7 @@ function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return s
 import React from "react";
 import style from "styled-components";
 
-import { setEntities } from "../entity/reducer";
+import { setModel } from "../entity/reducer";
 import { Select, Button } from "antd";
 import { connect } from "react-redux";
 import calcLinkPoints from "./calcLinkPoints";
@@ -210,9 +210,7 @@ var ArrowBodyContainer = function (_React$PureComponent) {
           edited: false
         }]);
       }
-      diagramStore.dispatch(_this3.props.setEntities(_this3.props.entities.map(function (entity) {
-        return entity.id === currentTarget.id ? currentTarget : entity;
-      })));
+      _this3.props.setModel(currentTarget);
     }, _temp), _possibleConstructorReturn(_this3, _ret);
   }
 
@@ -228,9 +226,7 @@ var ArrowBodyContainer = function (_React$PureComponent) {
     if (linkIndex >= 0) {
       currentTarget.linksTo.splice(linkIndex, 1);
     }
-    diagramStore.dispatch(this.props.setEntities(this.props.entities.map(function (entity) {
-      return entity.id === currentTarget.id ? currentTarget : entity;
-    })));
+    this.props.setModel(currentTarget);
   };
 
   ArrowBodyContainer.prototype.render = function render() {
@@ -267,5 +263,5 @@ var mapStateToProps = function mapStateToProps(state) {
   };
 };
 export default connect(mapStateToProps, {
-  setEntities: setEntities
+  setModel: setModel
 })(ArrowBodyContainer);
