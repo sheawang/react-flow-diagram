@@ -479,7 +479,7 @@ export const setName = (payload: SetNamePayload): EntityAction => ({
 });
 
 // set whole model
-export const setModel = (payload: EntityModel): EntityAction => ({
+export const setModel = (payload: any): EntityAction => ({
   type: "rd/entity/SET_MODEL",
   payload
 });
