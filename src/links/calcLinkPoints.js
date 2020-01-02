@@ -1,12 +1,12 @@
 // @flow
 
-import type { EntityModel, Point, Link } from '../entity/reducer';
+import type { EntityModel, Point, Link } from "../entity/reducer";
 
 type Rect = {|
   x: number,
   y: number,
   width: number,
-  height: number,
+  height: number
 |};
 
 // TODO: the bend when the elements are close to each other (vertically or
@@ -23,31 +23,42 @@ type Rect = {|
 // the user has never edited the link and expects a declarative arrow behaviour
 //
 const calcDefaultPointsAccordingToMainAxis = (
-  mainAxis: 'x' | 'y',
+  mainAxis: "x" | "y",
   from: EntityModel,
   to: Rect | EntityModel,
   fromMid: Point,
   toMid: Point
 ): Array<Point> => {
-  const crossAxis = mainAxis === 'x' ? 'y' : 'x';
-  const mainDimension = mainAxis === 'x' ? 'width' : 'height';
-  const crossDimension = mainAxis === 'x' ? 'height' : 'width';
-
+  const crossAxis = mainAxis === "x" ? "y" : "x";
+  const mainDimension = mainAxis === "x" ? "width" : "height";
+  const crossDimension = mainAxis === "x" ? "height" : "width";
+  let startPnt: Point = {};
+  if (from[mainAxis] > to[mainAxis]) {
+    startPnt = {
+      [mainAxis]: fromMid[mainAxis] - from[mainDimension] / 2,
+      [crossAxis]: fromMid[crossAxis]
+    };
+  } else {
+    startPnt = {
+      [mainAxis]: fromMid[mainAxis] + from[mainDimension] / 2,
+      [crossAxis]: fromMid[crossAxis]
+    };
+  }
   if (
-    from[crossAxis] + from[crossDimension] > to[crossAxis] &&
-    from[crossAxis] < to[crossAxis] + to[crossDimension]
+    (from[crossAxis] + from[crossDimension] > to[crossAxis] &&
+      from[crossAxis] < to[crossAxis] + to[crossDimension])
   ) {
     // If From and To are too close in the crossAxis
     const distance = (fromMid[mainAxis] + toMid[mainAxis]) / 2;
 
     const midPntAlpha: Point = {
       [mainAxis]: distance,
-      [crossAxis]: fromMid[crossAxis],
+      [crossAxis]: fromMid[crossAxis]
     };
 
     const midPntBeta: Point = {
       [mainAxis]: distance,
-      [crossAxis]: toMid[crossAxis],
+      [crossAxis]: toMid[crossAxis]
     };
 
     const lastPnt: Point = {
@@ -55,14 +66,14 @@ const calcDefaultPointsAccordingToMainAxis = (
         from[mainAxis] > to[mainAxis]
           ? to[mainAxis] + to[mainDimension]
           : to[mainAxis],
-      [crossAxis]: toMid[crossAxis],
+      [crossAxis]: toMid[crossAxis]
     };
 
-    return [fromMid, midPntAlpha, midPntBeta, lastPnt];
+    return [startPnt, midPntAlpha, midPntBeta, lastPnt];
   } else {
     const midPoint: Point = {
       [mainAxis]: toMid[mainAxis],
-      [crossAxis]: fromMid[crossAxis],
+      [crossAxis]: fromMid[crossAxis]
     };
 
     const lastPnt: Point = {
@@ -70,10 +81,10 @@ const calcDefaultPointsAccordingToMainAxis = (
       [crossAxis]:
         from[crossAxis] > to[crossAxis]
           ? to[crossAxis] + to[crossDimension]
-          : to[crossAxis],
+          : to[crossAxis]
     };
 
-    return [fromMid, midPoint, lastPnt];
+    return [startPnt, midPoint, lastPnt];
   }
 };
 
@@ -113,24 +124,24 @@ const linesIntersection = (
 const pointEntityIntersection = (from: Point, to: EntityModel): Point => {
   const toMid: Point = {
     x: to.x + to.width / 2,
-    y: to.y + to.height / 2,
+    y: to.y + to.height / 2
   };
 
   const upLeft: Point = {
     x: to.x,
-    y: to.y,
+    y: to.y
   };
   const upRight: Point = {
     x: to.x + to.width,
-    y: to.y,
+    y: to.y
   };
   const downRight: Point = {
     x: to.x + to.width,
-    y: to.y + to.height,
+    y: to.y + to.height
   };
   const downLeft: Point = {
     x: to.x,
-    y: to.y + to.height,
+    y: to.y + to.height
   };
   const interUp = linesIntersection(upLeft, upRight, from, toMid);
   const interRight = linesIntersection(upRight, downRight, from, toMid);
@@ -167,12 +178,12 @@ const newPointTwins = (
       return [
         {
           x: entity.x + entity.width / 2,
-          y: entity.y,
+          y: entity.y
         },
         {
           x: entity.x + entity.width / 2,
-          y: wanderer.y,
-        },
+          y: wanderer.y
+        }
       ];
     } else {
       // ent
@@ -180,12 +191,12 @@ const newPointTwins = (
       return [
         {
           x: entity.x + entity.width / 2,
-          y: entity.y + entity.height,
+          y: entity.y + entity.height
         },
         {
           x: entity.x + entity.width / 2,
-          y: wanderer.y,
-        },
+          y: wanderer.y
+        }
       ];
     }
   }
@@ -196,24 +207,24 @@ const newPointTwins = (
       return [
         {
           x: entity.x,
-          y: entity.y + entity.height / 2,
+          y: entity.y + entity.height / 2
         },
         {
           x: wanderer.x,
-          y: entity.y + entity.height / 2,
-        },
+          y: entity.y + entity.height / 2
+        }
       ];
     } else {
       // ent -
       return [
         {
           x: entity.x + entity.width,
-          y: entity.y + entity.height / 2,
+          y: entity.y + entity.height / 2
         },
         {
           x: wanderer.x,
-          y: entity.y + entity.height / 2,
-        },
+          y: entity.y + entity.height / 2
+        }
       ];
     }
   }
@@ -237,7 +248,10 @@ const calcPointsOfEdited = (
   link: ?Link
 ): Array<Point> => {
   if (link == null || link.points == null) {
-    return [{ x: 0, y: 0 }, { x: 100, y: 100 }];
+    return [
+      { x: 0, y: 0 },
+      { x: 100, y: 100 }
+    ];
   }
 
   const points = link.points;
@@ -254,11 +268,14 @@ const calcPointsOfEdited = (
   );
 
   if (points.length <= 1) {
-    return [{ x: 0, y: 0 }, { x: 100, y: 100 }];
+    return [
+      { x: 0, y: 0 },
+      { x: 100, y: 100 }
+    ];
   } else if (points.length === 2) {
     const fromMid: Point = {
       x: from.x + from.width / 2,
-      y: from.y + from.height / 2,
+      y: from.y + from.height / 2
     };
     const fromMidToIntersection = pointEntityIntersection(fromMid, to);
     return [fromMid, fromMidToIntersection];
@@ -267,13 +284,13 @@ const calcPointsOfEdited = (
       return [
         inContactFrom,
         { x: inContactFrom.x, y: inContactTo.y },
-        inContactTo,
+        inContactTo
       ];
     } else if (inContactFrom.y === wandererFrom.y) {
       return [
         inContactFrom,
         { x: inContactTo.x, y: inContactFrom.y },
-        inContactTo,
+        inContactTo
       ];
     } else {
       return [inContactFrom, points[1], inContactTo];
@@ -285,7 +302,7 @@ const calcPointsOfEdited = (
     wandererFrom,
     ...points.slice(2, points.length - 2),
     wandererTo,
-    inContactTo,
+    inContactTo
   ];
 };
 
@@ -306,7 +323,10 @@ const calcLinkPoints = (
   to: ?(Rect | EntityModel)
 ): Array<Point> => {
   if (from == null || to == null) {
-    return [{ x: 0, y: 0 }, { x: 100, y: 100 }];
+    return [
+      { x: 0, y: 0 },
+      { x: 100, y: 100 }
+    ];
   }
 
   if (to.id) {
@@ -324,18 +344,17 @@ const calcLinkPoints = (
 
   const fromMid: Point = {
     x: from.x + from.width / 2,
-    y: from.y + from.height / 2,
+    y: from.y + from.height / 2
   };
   const toMid: Point = {
     x: to.x + to.width / 2,
-    y: to.y + to.height / 2,
+    y: to.y + to.height / 2
   };
-
   if (Math.abs(fromMid.x - toMid.x) > Math.abs(fromMid.y - toMid.y)) {
     // If horizontal distance is greater than vertical distance
-    return calcDefaultPointsAccordingToMainAxis('x', from, to, fromMid, toMid);
+    return calcDefaultPointsAccordingToMainAxis("x", from, to, fromMid, toMid);
   } else {
-    return calcDefaultPointsAccordingToMainAxis('y', from, to, fromMid, toMid);
+    return calcDefaultPointsAccordingToMainAxis("y", from, to, fromMid, toMid);
   }
 };
 

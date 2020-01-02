@@ -9,10 +9,6 @@ import type { ConfigState, CustomEntities } from 'react-flow-diagram';
 
 const config: ConfigState = {
   entityTypes: {
-    Task: {
-      width: 125,
-      height: 75,
-    },
     Event: {
       width: 50,
       height: 50,
