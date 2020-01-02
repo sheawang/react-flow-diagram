@@ -64,8 +64,8 @@ const calcDefaultPointsAccordingToMainAxis = (
     const lastPnt: Point = {
       [mainAxis]:
         from[mainAxis] > to[mainAxis]
-          ? to[mainAxis] + to[mainDimension]
-          : to[mainAxis],
+          ? toMid[mainAxis] + to[mainDimension] / 2
+          : toMid[mainAxis] - to[mainDimension] /2,
       [crossAxis]: toMid[crossAxis]
     };
 
@@ -80,8 +80,8 @@ const calcDefaultPointsAccordingToMainAxis = (
       [mainAxis]: toMid[mainAxis],
       [crossAxis]:
         from[crossAxis] > to[crossAxis]
-          ? to[crossAxis] + to[crossDimension]
-          : to[crossAxis]
+          ? toMid[crossAxis] + to[crossDimension] / 2
+          : toMid[crossAxis] - to[crossDimension] / 2
     };
 
     return [startPnt, midPoint, lastPnt];
