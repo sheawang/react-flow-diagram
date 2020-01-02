@@ -46,7 +46,7 @@ const SelectAfter = (props: SelectProps) => {
     <div>
       {props.hasUnderLabel && (
         <Input
-          placeholder="请输入"
+          placeholder="relationName"
           value={props.inputValue}
           onChange={props.handleInputValueChange}
           onPressEnter={props.handleInputValueChange}
@@ -156,7 +156,7 @@ class ArrowBody extends React.Component<ArrowBodyProps> {
             </textPath>
           </text>
         )}
-        {underLabel && (
+        { underLabel && (
           <text dy="-.25rem">
             <textPath
               xlinkHref={`#line${newId}`}
@@ -186,7 +186,7 @@ class ArrowBody extends React.Component<ArrowBodyProps> {
             value={label}
             handleSelect={this.handleSelect}
             handleDelete={() => this.handleDelete()}
-            hasUnderLabel={underLabel}
+            hasUnderLabel={typeof underLabel !== 'undefined'}
             inputValue={underLabel}
             handleInputValueChange={this.handleInputValueChange}
           ></SelectAfter>
@@ -218,9 +218,10 @@ type ArrowBodyContainerProps = {
 };
 class ArrowBodyContainer extends React.PureComponent<ArrowBodyContainerProps> {
   handleSubmit = (link: any) => {
-    const currentTarget = this.props.entities.find(
+    const currentIndex = this.props.entities.findIndex(
       entity => entity.id === this.props.from
     );
+    const currentTarget = {...this.props.entities[currentIndex]};
     const { label, underLabel } = link;
     const isExist = currentTarget.linksTo.find(lk => lk.target === link.id);
     if (currentTarget.linksTo && isExist) {
