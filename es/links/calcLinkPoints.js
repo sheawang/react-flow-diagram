@@ -14,10 +14,19 @@
 // the user has never edited the link and expects a declarative arrow behaviour
 //
 var calcDefaultPointsAccordingToMainAxis = function calcDefaultPointsAccordingToMainAxis(mainAxis, from, to, fromMid, toMid) {
-  var crossAxis = mainAxis === 'x' ? 'y' : 'x';
-  var mainDimension = mainAxis === 'x' ? 'width' : 'height';
-  var crossDimension = mainAxis === 'x' ? 'height' : 'width';
+  var crossAxis = mainAxis === "x" ? "y" : "x";
+  var mainDimension = mainAxis === "x" ? "width" : "height";
+  var crossDimension = mainAxis === "x" ? "height" : "width";
+  var startPnt = {};
+  if (from[mainAxis] > to[mainAxis]) {
+    var _startPnt;
 
+    startPnt = (_startPnt = {}, _startPnt[mainAxis] = fromMid[mainAxis] - from[mainDimension] / 2, _startPnt[crossAxis] = fromMid[crossAxis], _startPnt);
+  } else {
+    var _startPnt2;
+
+    startPnt = (_startPnt2 = {}, _startPnt2[mainAxis] = fromMid[mainAxis] + from[mainDimension] / 2, _startPnt2[crossAxis] = fromMid[crossAxis], _startPnt2);
+  }
   if (from[crossAxis] + from[crossDimension] > to[crossAxis] && from[crossAxis] < to[crossAxis] + to[crossDimension]) {
     var _midPntAlpha, _midPntBeta, _lastPnt;
 
@@ -30,7 +39,7 @@ var calcDefaultPointsAccordingToMainAxis = function calcDefaultPointsAccordingTo
 
     var lastPnt = (_lastPnt = {}, _lastPnt[mainAxis] = from[mainAxis] > to[mainAxis] ? to[mainAxis] + to[mainDimension] : to[mainAxis], _lastPnt[crossAxis] = toMid[crossAxis], _lastPnt);
 
-    return [fromMid, midPntAlpha, midPntBeta, lastPnt];
+    return [startPnt, midPntAlpha, midPntBeta, lastPnt];
   } else {
     var _midPoint, _lastPnt3;
 
@@ -38,7 +47,7 @@ var calcDefaultPointsAccordingToMainAxis = function calcDefaultPointsAccordingTo
 
     var _lastPnt2 = (_lastPnt3 = {}, _lastPnt3[mainAxis] = toMid[mainAxis], _lastPnt3[crossAxis] = from[crossAxis] > to[crossAxis] ? to[crossAxis] + to[crossDimension] : to[crossAxis], _lastPnt3);
 
-    return [fromMid, midPoint, _lastPnt2];
+    return [startPnt, midPoint, _lastPnt2];
   }
 };
 
@@ -245,12 +254,11 @@ var calcLinkPoints = function calcLinkPoints(from, to) {
     x: to.x + to.width / 2,
     y: to.y + to.height / 2
   };
-
   if (Math.abs(fromMid.x - toMid.x) > Math.abs(fromMid.y - toMid.y)) {
     // If horizontal distance is greater than vertical distance
-    return calcDefaultPointsAccordingToMainAxis('x', from, to, fromMid, toMid);
+    return calcDefaultPointsAccordingToMainAxis("x", from, to, fromMid, toMid);
   } else {
-    return calcDefaultPointsAccordingToMainAxis('y', from, to, fromMid, toMid);
+    return calcDefaultPointsAccordingToMainAxis("y", from, to, fromMid, toMid);
   }
 };
 
