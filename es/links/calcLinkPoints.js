@@ -37,7 +37,7 @@ var calcDefaultPointsAccordingToMainAxis = function calcDefaultPointsAccordingTo
 
     var midPntBeta = (_midPntBeta = {}, _midPntBeta[mainAxis] = distance, _midPntBeta[crossAxis] = toMid[crossAxis], _midPntBeta);
 
-    var lastPnt = (_lastPnt = {}, _lastPnt[mainAxis] = from[mainAxis] > to[mainAxis] ? to[mainAxis] + to[mainDimension] : to[mainAxis], _lastPnt[crossAxis] = toMid[crossAxis], _lastPnt);
+    var lastPnt = (_lastPnt = {}, _lastPnt[mainAxis] = from[mainAxis] > to[mainAxis] ? toMid[mainAxis] + to[mainDimension] / 2 : toMid[mainAxis] - to[mainDimension] / 2, _lastPnt[crossAxis] = toMid[crossAxis], _lastPnt);
 
     return [startPnt, midPntAlpha, midPntBeta, lastPnt];
   } else {
@@ -45,7 +45,7 @@ var calcDefaultPointsAccordingToMainAxis = function calcDefaultPointsAccordingTo
 
     var midPoint = (_midPoint = {}, _midPoint[mainAxis] = toMid[mainAxis], _midPoint[crossAxis] = fromMid[crossAxis], _midPoint);
 
-    var _lastPnt2 = (_lastPnt3 = {}, _lastPnt3[mainAxis] = toMid[mainAxis], _lastPnt3[crossAxis] = from[crossAxis] > to[crossAxis] ? to[crossAxis] + to[crossDimension] : to[crossAxis], _lastPnt3);
+    var _lastPnt2 = (_lastPnt3 = {}, _lastPnt3[mainAxis] = toMid[mainAxis], _lastPnt3[crossAxis] = from[crossAxis] > to[crossAxis] ? toMid[crossAxis] + to[crossDimension] / 2 : toMid[crossAxis] - to[crossDimension] / 2, _lastPnt3);
 
     return [startPnt, midPoint, _lastPnt2];
   }
