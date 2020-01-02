@@ -179,7 +179,7 @@ class ArrowBody extends React.Component<ArrowBodyProps> {
         <foreignObject
           width="100"
           height="100"
-          x={(Number(start.x) + Number(end.x)) / 2}
+          x={(Number(start.x) + Number(end.x)) / 2 - 50}
           y={(Number(start.y) + Number(end.y)) / 2}
         >
           <SelectAfter

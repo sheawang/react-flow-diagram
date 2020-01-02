@@ -30,8 +30,8 @@ const model: EntityState = [
     ],
     width: 150,
     height: 125,
-    x: 350,
-    y: 300,
+    x: 525,
+    y: 75,
     modelTitle: '用户模块',
     type: 'Task',
     linksTo: [
@@ -41,21 +41,43 @@ const model: EntityState = [
         label: '1...n',
         points: [
           {
-            x: 500,
-            y: 362.5
+            x: 525,
+            y: 137.5
           },
           {
-            x: 700,
-            y: 362.5
+            x: 412.5,
+            y: 137.5
           },
           {
-            x: 700,
-            y: 225
+            x: 412.5,
+            y: 112.5
+          },
+          {
+            x: 300,
+            y: 112.5
           }
         ],
         custom: {
           underLabel: 'roles'
         }
+      },
+      {
+        target: 'userRole',
+        edited: false,
+        points: [
+          {
+            x: 675,
+            y: 137.5
+          },
+          {
+            x: 900,
+            y: 137.5
+          },
+          {
+            x: 900,
+            y: 275
+          }
+        ]
       }
     ]
   },
@@ -81,34 +103,10 @@ const model: EntityState = [
     ],
     width: 150,
     height: 125,
-    x: 650,
-    y: 100,
+    x: 150,
+    y: 50,
     modelTitle: '角色模块',
-    type: 'Task',
-    linksTo: [
-      {
-        target: 'userRole',
-        edited: false,
-        points: [
-          {
-            x: 775,
-            y: 162.5
-          },
-          {
-            x: 825,
-            y: 162.5
-          },
-          {
-            x: 825,
-            y: 212.5
-          },
-          {
-            x: 875,
-            y: 212.5
-          }
-        ]
-      }
-    ]
+    type: 'Task'
   },
   {
     id: 'userRole',
@@ -144,30 +142,10 @@ const model: EntityState = [
     ],
     width: 150,
     height: 175,
-    x: 875,
-    y: 125,
+    x: 900,
+    y: 275,
     modelTitle: '用户角色关系模块',
-    type: 'Task',
-    linksTo: [
-      {
-        target: 'user',
-        edited: false,
-        points: [
-          {
-            x: 875,
-            y: 212.5
-          },
-          {
-            x: 425,
-            y: 212.5
-          },
-          {
-            x: 425,
-            y: 300
-          }
-        ]
-      }
-    ]
+    type: 'Task'
   }
 ]
 

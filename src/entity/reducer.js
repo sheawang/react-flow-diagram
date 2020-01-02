@@ -100,8 +100,8 @@ const entityReducer = (
         return relevantConfig
           ? {
               ...entity,
-              width: relevantConfig.width,
-              height: relevantConfig.height
+              width: entity.width ? entity.width: relevantConfig.width,
+              height: entity.height ? entity.height : relevantConfig.height
             }
           : entity;
       });
