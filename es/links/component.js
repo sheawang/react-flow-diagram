@@ -15,7 +15,7 @@ import React from "react";
 import style from "styled-components";
 
 import { setModel } from "../entity/reducer";
-import { Select, Button } from "antd";
+import { Select, Button, Input } from "antd";
 import { connect } from "react-redux";
 import calcLinkPoints from "./calcLinkPoints";
 import { State } from "../diagram/reducer";
@@ -35,6 +35,12 @@ var SelectAfter = function SelectAfter(props) {
   return React.createElement(
     "div",
     null,
+    props.hasUnderLabel && React.createElement(Input, {
+      placeholder: "\u8BF7\u8F93\u5165",
+      value: props.inputValue,
+      onChange: props.handleInputValueChange,
+      onPressEnter: props.handleInputValueChange
+    }),
     React.createElement(
       Select,
       {
@@ -68,11 +74,13 @@ var ArrowBody = function (_React$Component) {
 
     _this.state = {
       label: props.label,
-      edited: props.edited
+      edited: props.edited,
+      underLabel: props.underLabel ? props.underLabel : ""
     };
     _this.handleClick = _this.handleClick.bind(_this);
     _this.handleSelect = _this.handleSelect.bind(_this);
     _this.handleDelete = _this.handleDelete.bind(_this);
+    _this.handleInputValueChange = _this.handleInputValueChange.bind(_this);
     return _this;
   }
 
@@ -96,11 +104,37 @@ var ArrowBody = function (_React$Component) {
 
   ArrowBody.prototype.handleSelect = function handleSelect(select) {
     this.setState({ label: select, edited: false });
-    this.props.handleSubmit({ id: this.props.id, label: select });
+    this.props.handleSubmit({
+      id: this.props.id,
+      underLabel: this.state.underLabel,
+      label: select
+    });
   };
 
   ArrowBody.prototype.handleDelete = function handleDelete() {
     this.props.handleDelete();
+  };
+
+  ArrowBody.prototype.handleInputValueChange = function handleInputValueChange(ev) {
+    switch (ev.key) {
+      case "Enter":
+        this.setState({ edited: false });
+        this.props.handleSubmit({
+          id: this.props.id,
+          underLabel: this.state.underLabel,
+          label: this.state.label
+        });
+        break;
+      case "Escape":
+        this.setState({ edited: false });
+        break;
+
+      // no default
+      default:
+        this.setState({
+          underLabel: ev.currentTarget.value
+        });
+    }
   };
 
   ArrowBody.prototype.render = function render() {
@@ -112,7 +146,9 @@ var ArrowBody = function (_React$Component) {
         from = _props.from;
 
     var pointsStr = pointsToString(points);
-    var label = this.state.label;
+    var _state = this.state,
+        label = _state.label,
+        underLabel = _state.underLabel;
 
     var newId = "From" + from + "To" + id;
     var notEdited = React.createElement(
@@ -124,7 +160,7 @@ var ArrowBody = function (_React$Component) {
       React.createElement(InteractionLine, { d: pointsStr }),
       label && React.createElement(
         "text",
-        { dy: "-.25rem" },
+        { dy: ".8rem" },
         React.createElement(
           "textPath",
           {
@@ -133,6 +169,19 @@ var ArrowBody = function (_React$Component) {
             style: { fontSize: ".8rem" }
           },
           label
+        )
+      ),
+      underLabel && React.createElement(
+        "text",
+        { dy: "-.25rem" },
+        React.createElement(
+          "textPath",
+          {
+            xlinkHref: "#line" + newId,
+            startOffset: "33%",
+            style: { fontSize: ".8rem", fontWeight: "bold" }
+          },
+          underLabel
         )
       )
     );
@@ -147,7 +196,7 @@ var ArrowBody = function (_React$Component) {
         "foreignObject",
         {
           width: "100",
-          height: "50",
+          height: "100",
           x: (Number(start.x) + Number(end.x)) / 2,
           y: (Number(start.y) + Number(end.y)) / 2
         },
@@ -156,7 +205,10 @@ var ArrowBody = function (_React$Component) {
           handleSelect: this.handleSelect,
           handleDelete: function handleDelete() {
             return _this2.handleDelete();
-          }
+          },
+          hasUnderLabel: underLabel,
+          inputValue: underLabel,
+          handleInputValueChange: this.handleInputValueChange
         })
       )
     );
@@ -196,17 +248,21 @@ var ArrowBodyContainer = function (_React$PureComponent) {
       var currentTarget = _this3.props.entities.find(function (entity) {
         return entity.id === _this3.props.from;
       });
+      var label = link.label,
+          underLabel = link.underLabel;
+
       var isExist = currentTarget.linksTo.find(function (lk) {
         return lk.target === link.id;
       });
       if (currentTarget.linksTo && isExist) {
         currentTarget.linksTo = currentTarget.linksTo.map(function (tg) {
-          return tg.target === link.id ? _extends({}, tg, { label: link.label }) : tg;
+          return tg.target === link.id ? _extends({}, tg, { label: label, custom: { underLabel: underLabel } }) : tg;
         });
       } else {
         currentTarget.linksTo = [].concat(currentTarget.linksTo, [{
           target: link.id,
-          label: link.label,
+          label: label,
+          custom: { underLabel: underLabel },
           edited: false
         }]);
       }
@@ -241,6 +297,7 @@ var ArrowBodyContainer = function (_React$PureComponent) {
           id: link.target,
           from: _this5.props.from,
           label: link.label,
+          underLabel: link.custom && link.custom.underLabel ? link.custom.underLabel : "",
           points: link.points,
           edited: link.edited,
           handleSubmit: function handleSubmit(link) {
