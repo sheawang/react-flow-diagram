@@ -36,7 +36,7 @@ var SelectAfter = function SelectAfter(props) {
     "div",
     null,
     props.hasUnderLabel && React.createElement(Input, {
-      placeholder: "\u8BF7\u8F93\u5165",
+      placeholder: "relationName",
       value: props.inputValue,
       onChange: props.handleInputValueChange,
       onPressEnter: props.handleInputValueChange
@@ -206,7 +206,7 @@ var ArrowBody = function (_React$Component) {
           handleDelete: function handleDelete() {
             return _this2.handleDelete();
           },
-          hasUnderLabel: underLabel,
+          hasUnderLabel: typeof underLabel !== 'undefined',
           inputValue: underLabel,
           handleInputValueChange: this.handleInputValueChange
         })
@@ -245,9 +245,10 @@ var ArrowBodyContainer = function (_React$PureComponent) {
     }
 
     return _ret = (_temp = (_this3 = _possibleConstructorReturn(this, _React$PureComponent.call.apply(_React$PureComponent, [this].concat(args))), _this3), _this3.handleSubmit = function (link) {
-      var currentTarget = _this3.props.entities.find(function (entity) {
+      var currentIndex = _this3.props.entities.findIndex(function (entity) {
         return entity.id === _this3.props.from;
       });
+      var currentTarget = _extends({}, _this3.props.entities[currentIndex]);
       var label = link.label,
           underLabel = link.underLabel;
 
