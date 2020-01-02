@@ -156,7 +156,7 @@ class ArrowBody extends React.Component<ArrowBodyProps> {
             </textPath>
           </text>
         )}
-        { underLabel && (
+        {underLabel && (
           <text dy="-.25rem">
             <textPath
               xlinkHref={`#line${newId}`}
@@ -186,7 +186,7 @@ class ArrowBody extends React.Component<ArrowBodyProps> {
             value={label}
             handleSelect={this.handleSelect}
             handleDelete={() => this.handleDelete()}
-            hasUnderLabel={typeof underLabel !== 'undefined'}
+            hasUnderLabel={typeof underLabel !== "undefined"}
             inputValue={underLabel}
             handleInputValueChange={this.handleInputValueChange}
           ></SelectAfter>
@@ -221,7 +221,7 @@ class ArrowBodyContainer extends React.PureComponent<ArrowBodyContainerProps> {
     const currentIndex = this.props.entities.findIndex(
       entity => entity.id === this.props.from
     );
-    const currentTarget = {...this.props.entities[currentIndex]};
+    const currentTarget = { ...this.props.entities[currentIndex] };
     const { label, underLabel } = link;
     const isExist = currentTarget.linksTo.find(lk => lk.target === link.id);
     if (currentTarget.linksTo && isExist) {
@@ -244,9 +244,10 @@ class ArrowBodyContainer extends React.PureComponent<ArrowBodyContainerProps> {
     this.props.setModel(currentTarget);
   };
   handleDelete(target: string) {
-    const currentTarget = this.props.entities.find(
-      et => et.id === this.props.from
+    const currentIndex = this.props.entities.findIndex(
+      entity => entity.id === this.props.from
     );
+    const currentTarget = { ...this.props.entities[currentIndex] };
     const linkIndex = currentTarget.linksTo.findIndex(
       lk => lk.target === target
     );
