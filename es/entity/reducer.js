@@ -25,8 +25,8 @@ var entityReducer = function entityReducer() {
         return state.map(function (entity) {
           var relevantConfig = configs.entityTypes[entity.type];
           return relevantConfig ? _extends({}, entity, {
-            width: relevantConfig.width,
-            height: relevantConfig.height
+            width: entity.width ? entity.width : relevantConfig.width,
+            height: entity.height ? entity.height : relevantConfig.height
           }) : entity;
         });
       }
