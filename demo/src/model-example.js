@@ -21,6 +21,9 @@ const model: EntityState = [
         target: 'Toucan',
         edited: false,
         label: 'Is friends with',
+        custom : {
+          underLabel: 'ceshi'
+        },
         points: [
           {
             x: 112.5,
@@ -39,7 +42,9 @@ const model: EntityState = [
       {
         target: 'Zebra',
         edited: false,
-        label: 'Eats',
+        label: 'Eats',custom : {
+          underLabel: 'ceshi'
+        },
         points: [
           {
             x: 112.5,

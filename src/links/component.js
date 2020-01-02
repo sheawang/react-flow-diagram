@@ -11,7 +11,7 @@ import type {
   EntityModel
 } from "../entity/reducer";
 import { setModel } from "../entity/reducer";
-import { Select, Button } from "antd";
+import { Select, Button, Input } from "antd";
 import { connect } from "react-redux";
 import calcLinkPoints from "./calcLinkPoints";
 import { State } from "../diagram/reducer";
@@ -44,6 +44,14 @@ export type SelectProps = {
 const SelectAfter = (props: SelectProps) => {
   return (
     <div>
+      {props.hasUnderLabel && (
+        <Input
+          placeholder="请输入"
+          value={props.inputValue}
+          onChange={props.handleInputValueChange}
+          onPressEnter={props.handleInputValueChange}
+        />
+      )}
       <Select
         placeholder="请选择模型关系"
         defaultValue={props.value ? props.value : "1..1"}
@@ -62,6 +70,7 @@ type ArrowBodyProps = {
   id: EntityId,
   from: EntityId,
   label: ?string,
+  underLabel?: string,
   edited: boolean,
   handleSubmit: () => void,
   handleDelete: () => void
@@ -71,11 +80,13 @@ class ArrowBody extends React.Component<ArrowBodyProps> {
     super(props);
     this.state = {
       label: props.label,
-      edited: props.edited
+      edited: props.edited,
+      underLabel: props.underLabel ? props.underLabel : ""
     };
     this.handleClick = this.handleClick.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
+    this.handleInputValueChange = this.handleInputValueChange.bind(this);
   }
   componentDidMount() {
     if (!this.state.edited) {
@@ -95,28 +106,64 @@ class ArrowBody extends React.Component<ArrowBodyProps> {
   }
   handleSelect(select: string) {
     this.setState({ label: select, edited: false });
-    this.props.handleSubmit({ id: this.props.id, label: select });
+    this.props.handleSubmit({
+      id: this.props.id,
+      underLabel: this.state.underLabel,
+      label: select
+    });
   }
   handleDelete() {
     this.props.handleDelete();
   }
+  handleInputValueChange(ev: any) {
+    switch (ev.key) {
+      case "Enter":
+        this.setState({ edited: false });
+        this.props.handleSubmit({
+          id: this.props.id,
+          underLabel: this.state.underLabel,
+          label: this.state.label
+        });
+        break;
+      case "Escape":
+        this.setState({ edited: false });
+        break;
+
+      // no default
+      default:
+        this.setState({
+          underLabel: ev.currentTarget.value
+        });
+    }
+  }
   render() {
     const { points, id, from } = this.props;
     const pointsStr = pointsToString(points);
-    const { label } = this.state;
+    const { label, underLabel } = this.state;
     const newId = `From${from}To${id}`;
     const notEdited = (
       <g ref={ref => (this.polyline = ref)}>
         <Line d={pointsStr} id={`line${newId}`} />
         <InteractionLine d={pointsStr} />
         {label && (
-          <text dy="-.25rem">
+          <text dy=".8rem">
             <textPath
               xlinkHref={`#line${newId}`}
               startOffset="33%"
               style={{ fontSize: ".8rem" }}
             >
               {label}
+            </textPath>
+          </text>
+        )}
+        {underLabel && (
+          <text dy="-.25rem">
+            <textPath
+              xlinkHref={`#line${newId}`}
+              startOffset="33%"
+              style={{ fontSize: ".8rem", fontWeight: "bold" }}
+            >
+              {underLabel}
             </textPath>
           </text>
         )}
@@ -131,7 +178,7 @@ class ArrowBody extends React.Component<ArrowBodyProps> {
 
         <foreignObject
           width="100"
-          height="50"
+          height="100"
           x={(Number(start.x) + Number(end.x)) / 2}
           y={(Number(start.y) + Number(end.y)) / 2}
         >
@@ -139,6 +186,9 @@ class ArrowBody extends React.Component<ArrowBodyProps> {
             value={label}
             handleSelect={this.handleSelect}
             handleDelete={() => this.handleDelete()}
+            hasUnderLabel={underLabel}
+            inputValue={underLabel}
+            handleInputValueChange={this.handleInputValueChange}
           ></SelectAfter>
         </foreignObject>
       </g>
@@ -164,17 +214,18 @@ type ArrowBodyContainerProps = {
   from: string,
   links: Links,
   entities: EntityState,
-  setModel: any => EntityAction,
+  setModel: any => EntityAction
 };
 class ArrowBodyContainer extends React.PureComponent<ArrowBodyContainerProps> {
   handleSubmit = (link: any) => {
     const currentTarget = this.props.entities.find(
       entity => entity.id === this.props.from
     );
+    const { label, underLabel } = link;
     const isExist = currentTarget.linksTo.find(lk => lk.target === link.id);
     if (currentTarget.linksTo && isExist) {
       currentTarget.linksTo = currentTarget.linksTo.map(tg =>
-        tg.target === link.id ? { ...tg, label: link.label } : tg
+        tg.target === link.id ? { ...tg, label, custom: { underLabel } } : tg
       );
     } else {
       currentTarget.linksTo = [
@@ -182,13 +233,14 @@ class ArrowBodyContainer extends React.PureComponent<ArrowBodyContainerProps> {
         ...[
           {
             target: link.id,
-            label: link.label,
+            label,
+            custom: { underLabel },
             edited: false
           }
         ]
       ];
     }
-    this.props.setModel(currentTarget)
+    this.props.setModel(currentTarget);
   };
   handleDelete(target: string) {
     const currentTarget = this.props.entities.find(
@@ -213,6 +265,11 @@ class ArrowBodyContainer extends React.PureComponent<ArrowBodyContainerProps> {
                 id={link.target}
                 from={this.props.from}
                 label={link.label}
+                underLabel={
+                  link.custom && link.custom.underLabel
+                    ? link.custom.underLabel
+                    : ""
+                }
                 points={link.points}
                 edited={link.edited}
                 handleSubmit={link => this.handleSubmit(link)}
