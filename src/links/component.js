@@ -252,7 +252,10 @@ class ArrowBodyContainer extends React.PureComponent<ArrowBodyContainerProps> {
       lk => lk.target === target
     );
     if (linkIndex >= 0) {
-      currentTarget.linksTo.splice(linkIndex, 1);
+      currentTarget.linksTo = [
+        ...currentTarget.linksTo.slice(0, linkIndex),
+        ...currentTarget.linksTo.slice(linkIndex+1)
+      ];
     }
     this.props.setModel(currentTarget);
   }
